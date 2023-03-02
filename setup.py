@@ -21,17 +21,25 @@ extra_compile_args = [
 if sys.version_info < (3 , 0):
     raise Exception('python-rocksdb requires Python 3.x')
 
-try:
-    ext_args = pkgconfig.parse('rocksdb')
-except pkgconfig.PackageNotFoundError:
-    include_path = os.environ.get('INCLUDE_PATH')
-    library_path = os.environ.get('LIBRARY_PATH')
+join = os.path.join
 
-    ext_args = {
-        'include_dirs': include_path.split(os.pathsep) if include_path else [],
-        'library_dirs': library_path.split(os.pathsep) if library_path else [],
-        'libraries': ['rocksdb', 'snappy', 'bz2', 'z', 'lz4'],
-    }
+rocksdb_dir = join("rocksdb", "src", "db")
+
+rocksdb_sources = [
+    join(rocksdb_dir, file)
+    for file in os.listdir(rocksdb_dir)
+    if file.endswith(".cc")
+]
+rocksdb_sources.append(
+    os.path.join('rocksdb', '_rocksdb.pyx')
+)
+sources = rocksdb_sources
+
+ext_args = {
+    "include_dirs": rocksdb_dir.split(os.pathsep),
+    "library_dirs": rocksdb_dir.split(os.pathsep),
+}
+
 
 if platform.system() == 'Darwin':
     extra_compile_args += ['-mmacosx-version-min=10.9', '-stdlib=libc++']
@@ -42,15 +50,8 @@ if platform.system() == 'Windows':
     ext_args['libraries'].remove('z')
     ext_args['libraries'].append('zlib')
 
-rocksdb_extension = Extension(
-    'rocksdb._rocksdb',
-    [
-        os.path.join('rocksdb','_rocksdb.pyx'),
-    ],
-    extra_compile_args=extra_compile_args,
-    language='c++',
-    **ext_args,
-)
+rocksdb_module = Extension("rocksdb._rocksdb", sources, language="c++", extra_compile_args=extra_compile_args, **ext_args)
+
 
 setup(
     name="faust-streaming-rocksdb",
@@ -65,5 +66,11 @@ setup(
     install_requires=['setuptools>=25'],
     package_dir={'rocksdb': 'rocksdb'},
     packages=find_packages('.'),
-    ext_modules=cythonize([rocksdb_extension]),
+    ext_modules=cythonize(
+        [
+            rocksdb_module,
+        ],
+        cplus=True,
+        compiler_directives={"language_level": "3"},  # Python 3
+    ),
 )
