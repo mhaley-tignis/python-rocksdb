@@ -18,8 +18,8 @@ extra_compile_args = [
     '-fno-rtti',
 ]
 
-if sys.version_info < (3 , 0):
-    raise Exception('python-rocksdb requires Python 3.x')
+if sys.version_info < (3 , 7):
+    raise Exception('python-rocksdb requires Python 3.7 or newer')
 
 join = os.path.join
 

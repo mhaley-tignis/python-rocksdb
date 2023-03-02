@@ -72,9 +72,6 @@ cdef extern from "cpp/utils.hpp" namespace "py_rocks":
 # Prepare python for threaded usage.
 # Python callbacks (merge, comparator)
 # could be executed in a rocksdb background thread (eg. compaction).
-cdef extern from "Python.h":
-    void PyEval_InitThreads()
-PyEval_InitThreads()
 
 ## Here comes the stuff to wrap the status to exception
 cdef check_status(const Status& st):
