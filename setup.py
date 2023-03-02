@@ -23,21 +23,27 @@ if sys.version_info < (3 , 0):
 
 join = os.path.join
 
-rocksdb_dir = join("rocksdb", "src", "db")
+rocksdb_dir = join("src", "db")
+utils_dir = join("src", "util")
 
 rocksdb_sources = [
     join(rocksdb_dir, file)
     for file in os.listdir(rocksdb_dir)
     if file.endswith(".cc")
 ]
+util_sources = [
+    join(rocksdb_dir, file)
+    for file in os.listdir(utils_dir)
+    if file.endswith(".cc")
+]
 rocksdb_sources.append(
     os.path.join('rocksdb', '_rocksdb.pyx')
 )
-sources = rocksdb_sources
+sources = rocksdb_sources + util_sources
 
 ext_args = {
-    "include_dirs": rocksdb_dir.split(os.pathsep),
-    "library_dirs": rocksdb_dir.split(os.pathsep),
+    "include_dirs": rocksdb_dir.split(os.pathsep) + utils_dir.split(os.pathsep),
+    "library_dirs": rocksdb_dir.split(os.pathsep) + utils_dir.split(os.pathsep),
 }
 
 
@@ -65,7 +71,9 @@ setup(
     setup_requires=['setuptools>=25', 'Cython>=0.20', 'setuptools_scm'],
     install_requires=['setuptools>=25'],
     package_dir={'rocksdb': 'rocksdb'},
-    packages=find_packages('.'),
+    packages=[
+        "rocksdb",
+    ],
     ext_modules=cythonize(
         [
             rocksdb_module,

@@ -1,4 +1,4 @@
-[submodule "rocksdb/src"]
-	path = rocksdb/src
+[submodule "rocksdb"]
+	path = src
 	url = https://github.com/facebook/rocksdb.git
 	branch = v6.14.6
