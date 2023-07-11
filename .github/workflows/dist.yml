@@ -33,6 +33,9 @@ jobs:
           python3 -m pip install cibuildwheel
 
       - name: 'Build and test wheels'
+        env:
+          CIBW_ARCHS_MACOS: "x86_64 universal2 arm64"
+          CIBW_ARCHS_LINUX: auto aarch64
         run: |
           python3 -m cibuildwheel --output-dir dist
 
