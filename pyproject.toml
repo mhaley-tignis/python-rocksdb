@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [tool.cibuildwheel]
 build-frontend = "build"
 build = "cp38*"
-skip = ["*-win32", "*-manylinux_i686", "*-musllinux_*"]
+skip = ["*-macosx_universal*", "*-win32", "*-manylinux_i686", "*-musllinux_*"]
 archs = ["auto64"]
 test-requires = ['.[test] pytest']
 test-command = ['pytest --pyargs rocksdb']
@@ -25,7 +25,7 @@ before-build = [
     'export LDFLAGS="-L/usr/local/opt/bzip2/lib"',
     'export CPPFLAGS="-I/usr/local/opt/bzip2/include"',
     'alias nproc="sysctl -n hw.logicalcpu"',
-    "(test -d $LIBROCKSDB_PATH || (  git clone https://github.com/facebook/rocksdb --depth 1 --branch $ROCKSDB_VER $LIBROCKSDB_PATH &&  cd $LIBROCKSDB_PATH &&  TARGET=arm64-apple-darwin CXXFLAGS='-flto -Os' PORTABLE=1 make shared_lib -j $(nproc)  )) && pushd $LIBROCKSDB_PATH && make install-shared &&  update_dyld_shared_cache && popd",
+    "(test -d $LIBROCKSDB_PATH || (  git clone https://github.com/facebook/rocksdb --depth 1 --branch $ROCKSDB_VER $LIBROCKSDB_PATH &&  cd $LIBROCKSDB_PATH &&  CXXFLAGS='-flto -Os' PORTABLE=1 make shared_lib -j $(nproc)  )) && pushd $LIBROCKSDB_PATH && make install-shared &&  update_dyld_shared_cache && popd",
 ]
 repair-wheel-command='DYLD_LIBRARY_PATH=$LIBROCKSDB_PATH delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel}'
 test-command = ['DYLD_LIBRARY_PATH=$LIBROCKSDB_PATH pytest --pyargs rocksdb']
